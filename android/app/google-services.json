@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "992228668784",
+    "project_id": "smarthrm-6b0c5",
+    "storage_bucket": "smarthrm-6b0c5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:992228668784:android:eccae6a615497122ce4bb5",
+        "android_client_info": {
+          "package_name": "com.example.smarthrm_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "992228668784-o86vlahlm2v8u44qts5922pcem9n8nsq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_H6TJiDDLc3MiDNOV_GQp7I1vjzAN_Qw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "992228668784-o86vlahlm2v8u44qts5922pcem9n8nsq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
