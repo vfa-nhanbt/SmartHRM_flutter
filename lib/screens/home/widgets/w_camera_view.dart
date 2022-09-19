@@ -1,25 +1,24 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-import 'package:smarthrm_flutter/config/values.dart';
+import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:smarthrm_flutter/screens/register_face/helper/face_utils.dart';
 
 import '../../../main.dart';
 
 class CameraView extends StatefulWidget {
-  CameraView({
+  const CameraView({
     Key? key,
-    required this.customPaint,
-    required this.onImage,
-    this.initialDirection = CameraLensDirection.front,
+    required this.onProcessImage,
+    this.onStreamCameraImage,
   }) : super(key: key);
 
-  final CustomPaint? customPaint;
-  final Function(InputImage inputImage) onImage;
-  final CameraLensDirection initialDirection;
+  // final Function(String base64Image)? onProcessImage;
+  final Function(InputImage inputIMage) onProcessImage;
+  final Function(CameraImage cameraImage)? onStreamCameraImage;
 
   @override
   State<CameraView> createState() => _CameraViewState();
@@ -27,15 +26,17 @@ class CameraView extends StatefulWidget {
 
 class _CameraViewState extends State<CameraView> {
   CameraController? _controller;
-  int _cameraIndex = 0;
+  int _cameraIndex = 1;
+  late FaceDetector detector;
 
   @override
   void initState() {
     super.initState();
 
-    _cameraIndex = cameras.indexOf(
-      cameras.firstWhere(
-        (element) => element.lensDirection == widget.initialDirection,
+    detector = FaceDetector(
+      options: FaceDetectorOptions(
+        enableClassification: true,
+        enableContours: true,
       ),
     );
 
@@ -45,6 +46,8 @@ class _CameraViewState extends State<CameraView> {
   @override
   void dispose() {
     stopLiveCamera();
+
+    detector.close();
 
     super.dispose();
   }
@@ -59,11 +62,25 @@ class _CameraViewState extends State<CameraView> {
       color: Colors.black,
       child: Stack(
         fit: StackFit.expand,
+        alignment: Alignment.bottomCenter,
         children: <Widget>[
           Center(
             child: CameraPreview(_controller!),
           ),
-          if (widget.customPaint != null) widget.customPaint!,
+          TextButton(
+            onPressed: () async {
+              final image = await _controller?.takePicture();
+
+              if (!mounted) return;
+
+              Uint8List imageBytes = await image!.readAsBytes();
+              String base64Image = base64Encode(imageBytes);
+
+              log(base64Image);
+              // widget.onProcessImage(base64Image);
+            },
+            child: Text("Capture"),
+          ),
         ],
       ),
     );
@@ -94,56 +111,11 @@ class _CameraViewState extends State<CameraView> {
   }
 
   Future processCameraImage(CameraImage image) async {
-    final WriteBuffer allBytes = WriteBuffer();
-    for (final Plane plane in image.planes) {
-      allBytes.putUint8List(plane.bytes);
-    }
-    final bytes = allBytes.done().buffer.asUint8List();
-
-    if (bytes.isEmpty) {
-      log('bytes is empty');
-    } else {
-      /// Call native code
-      await AppValues.instance.methodChannel.invokeMethod<Float32List>(
-        'processImageFromCamera',
-        <String, Uint8List>{
-          'imageByteArray': bytes,
-        },
-      );
-    }
-
-    final Size imageSize =
-        Size(image.width.toDouble(), image.height.toDouble());
-
-    final camera = cameras[_cameraIndex];
-    final imageRotation =
-        InputImageRotationValue.fromRawValue(camera.sensorOrientation);
-    if (imageRotation == null) return;
-
-    final inputImageFormat =
-        InputImageFormatValue.fromRawValue(image.format.raw);
-    if (inputImageFormat == null) return;
-
-    final planeData = image.planes.map(
-      (Plane plane) {
-        return InputImagePlaneMetadata(
-          bytesPerRow: plane.bytesPerRow,
-          height: plane.height,
-          width: plane.width,
-        );
-      },
-    ).toList();
-
-    final inputImageData = InputImageData(
-      size: imageSize,
-      imageRotation: imageRotation,
-      inputImageFormat: inputImageFormat,
-      planeData: planeData,
+    final InputImage inputImage = FaceUtils.instance.createInputImage(
+      image,
+      _controller!.description.sensorOrientation,
     );
 
-    final InputImage inputImage =
-        InputImage.fromBytes(bytes: bytes, inputImageData: inputImageData);
-
-    widget.onImage(inputImage);
+    widget.onProcessImage(inputImage);
   }
 }

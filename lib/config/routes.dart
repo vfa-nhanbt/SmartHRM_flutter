@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:smarthrm_flutter/screens/home/home_screen.dart';
+import 'package:smarthrm_flutter/screens/register_face/register_face.dart';
 
 class AppRoutes {
   AppRoutes._internal();
@@ -13,7 +14,7 @@ class AppRoutes {
 
   // Route name
   static const String home = "/home";
-  static const String cameraView = "/camera-view";
+  static const String registerFace = "/register-face";
 
   // initial Route
   static String get init => home;
@@ -23,6 +24,10 @@ class AppRoutes {
       case AppRoutes.home:
         return CupertinoPageRoute(
           builder: (context) => HomeScreen(),
+        );
+      case AppRoutes.registerFace:
+        return CupertinoPageRoute(
+          builder: (context) => RegisterFace(),
         );
       default:
         return _errorRoute();
