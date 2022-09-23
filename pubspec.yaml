@@ -41,9 +41,10 @@ dependencies:
   intl: ^0.17.0
 
   #  google_ml_kit:
-  google_mlkit_face_detection: ^0.4.0
+  # google_mlkit_face_detection: ^0.4.0
   google_ml_kit: ^0.12.0
   tflite_flutter: ^0.9.0
+  get_it: ^7.2.0
 
 dev_dependencies:
   flutter_test:

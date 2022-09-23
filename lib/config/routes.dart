@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:smarthrm_flutter/screens/home/home_screen.dart';
-import 'package:smarthrm_flutter/screens/register_face/register_face.dart';
+
+import '../screens/home/pages/home_screen.dart';
+import '../screens/register_face/register_face.dart';
 
 class AppRoutes {
   AppRoutes._internal();
@@ -17,7 +18,7 @@ class AppRoutes {
   static const String registerFace = "/register-face";
 
   // initial Route
-  static String get init => home;
+  static String get init => registerFace;
 
   Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {

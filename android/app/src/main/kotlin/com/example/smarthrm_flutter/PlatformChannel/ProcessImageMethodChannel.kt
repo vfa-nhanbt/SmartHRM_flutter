@@ -9,12 +9,8 @@ import android.util.Base64
 import android.util.Log
 import androidx.annotation.NonNull
 import asia.vitalify.hrm.ui.faces.classifier.Classifier
-import com.example.smarthrm_flutter.Utils.Configuration
-import com.example.smarthrm_flutter.Utils.FaceAspect
-import com.example.smarthrm_flutter.Utils.FaceUtils
-import com.example.smarthrm_flutter.Utils.MatrixTools
+import com.example.smarthrm_flutter.Utils.*
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
 import io.flutter.embedding.engine.FlutterEngine
@@ -137,12 +133,61 @@ open class ProcessImageMethodChannel {
                             Log.d(tag, "Process next image from Failure listener")
                         }
                 }
-                "SendFaces" -> {
-                    val face: Face? = call.argument("face")
-                    if (face != null) {
-                        Log.d("callMethodChannel: ", face.toString())
+                "SendImageBase64String" -> {
+                    val imageDecode: String? = call.argument("image")
+                    val decodedString: ByteArray = Base64.decode(imageDecode, Base64.DEFAULT)
+                    val originBitmap: Bitmap? =
+                        BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
+                    if (originBitmap != null) {
+                        result.success("Success convert base64 String to bitmap")
                     } else {
-                        
+                        result.error("Error!", "Cannot convert argument to bitmap", "")
+                    }
+                }
+                "SendImageToNative" -> {
+                    val encodedImage: List<ByteArray>? = call.argument("encodeImage")
+                    val width: Int? = call.argument("width")
+                    val height: Int? = call.argument("height")
+                    var sizeOfDetectedFace = "N/A"
+
+                    val originBitmap: Bitmap? =
+                        encodedImage.toBitmap(width!!, height!!)
+
+                    if (originBitmap != null) {
+                        val matrix = Matrix()
+                        matrix.preScale(-1f, 1f)
+                        matrix.postRotate(90f)
+                        val bitmap = Bitmap.createBitmap(
+                            originBitmap,
+                            0,
+                            0,
+                            originBitmap.width,
+                            originBitmap.height,
+                            matrix,
+                            true
+                        )
+                        val image = InputImage.fromBitmap(bitmap, 0)
+                        // High-accuracy landmark detection and face classification
+                        val options = FaceDetectorOptions.Builder()
+                            .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_NONE)
+                            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
+                            .build()
+                        // Get an instance of FaceDetector
+                        val detector = FaceDetection.getClient(options)
+
+                        detector.process(image)
+                            .addOnSuccessListener { faces ->
+                                Log.d("Detect face: ", faces.size.toString())
+                                if (faces.isNotEmpty()) {
+                                    sizeOfDetectedFace = faces.size.toString()
+                                }
+                                result.success("Size of faces detected: $sizeOfDetectedFace")
+                            }.addOnFailureListener {
+                                result.error("Error!", "Cannot detect face from image", "")
+                            }
+
+                    } else {
+                        result.error("Error!", "Cannot convert argument to bitmap", "")
                     }
                 }
                 else -> result.notImplemented()
