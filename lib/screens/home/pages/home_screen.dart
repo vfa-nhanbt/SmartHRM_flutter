@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
@@ -81,19 +82,26 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   sendImageToNative(CameraImage image) async {
-    final WriteBuffer allBytes = WriteBuffer();
-    for (Plane plane in image.planes) {
-      allBytes.putUint8List(plane.bytes);
-    }
-    final bytes = allBytes.done().buffer.asUint8List();
+    List<Uint8List> bytes = [];
+    bytes.add(createUint8List(image.planes[0].bytes));
+    bytes.add(createUint8List(image.planes[1].bytes));
+    bytes.add(createUint8List(image.planes[2].bytes));
 
     await AppValues.instance.methodChannel.invokeMethod<String>(
       "SendImage",
       {
         "encodeImage": bytes,
+        "width": image.width,
+        "height": image.height,
       },
     ).then(
       (value) => log(value ?? "Cannot get any value from native"),
     );
+  }
+
+  Uint8List createUint8List(Uint8List bytes) {
+    WriteBuffer allBytes = WriteBuffer();
+    allBytes.putUint8List(bytes);
+    return allBytes.done().buffer.asUint8List();
   }
 }

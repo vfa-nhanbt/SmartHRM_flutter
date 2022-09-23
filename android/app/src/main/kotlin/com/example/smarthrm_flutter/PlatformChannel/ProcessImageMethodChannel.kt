@@ -1,8 +1,8 @@
 package com.example.smarthrm_flutter.PlatformChannel
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import androidx.annotation.NonNull
+import com.example.smarthrm_flutter.Utils.toBitmap
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
@@ -22,15 +22,18 @@ open class ProcessImageMethodChannel {
         ).setMethodCallHandler { call, result ->
             when (call.method) {
                 "SendImage" -> {
-                    val decodedImage: ByteArray = call.argument("encodeImage")
-                        ?: return@setMethodCallHandler result.error(
+                    val decodedImage: List<ByteArray>? = call.argument("encodeImage")
+                    val width: Int? = call.argument("width")
+                    val height: Int? = call.argument("height")
+                    if (decodedImage == null || width == null || height == null) {
+                        return@setMethodCallHandler result.error(
                             "Error!",
                             "Cannot get any image from flutter",
                             ""
                         )
+                    }
 
-                    val originBitmap: Bitmap? =
-                        BitmapFactory.decodeByteArray(decodedImage, 0, decodedImage.size)
+                    val originBitmap: Bitmap? = decodedImage.toBitmap(width, height)
                     if (originBitmap != null) {
                         return@setMethodCallHandler result.success("Success decode byte array")
                     }
