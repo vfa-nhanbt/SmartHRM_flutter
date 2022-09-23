@@ -1,9 +1,8 @@
 import 'dart:developer';
-import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../config/values.dart';
@@ -21,8 +20,8 @@ class _HomeScreenState extends State<HomeScreen> {
   CameraService cameraService = GetIt.I<CameraService>();
 
   bool _initializing = false;
-  // bool _canProcess = true;
-  // bool _isBusy = false;
+  bool _canProcess = true;
+  bool _isBusy = false;
 
   @override
   void initState() {
@@ -34,13 +33,31 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _initializing = true);
     await cameraService.initialize();
     setState(() => _initializing = false);
+
+    startStream();
   }
 
   @override
   void dispose() {
     cameraService.dispose();
-    // _canProcess = false;
+    _canProcess = false;
     super.dispose();
+  }
+
+  startStream() async {
+    if (!_canProcess) return;
+    if (_isBusy) return;
+    _isBusy = true;
+    setState(() {});
+
+    cameraService.startStream(
+      (CameraImage image) async => sendImageToNative(image),
+    );
+
+    _isBusy = false;
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -60,38 +77,23 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          try {
-            final image = await cameraService.takePicture();
-
-            processCapturedImage(image!);
-          } catch (e) {
-            print(e);
-          }
-        },
-        child: const Icon(Icons.camera_alt),
-      ),
     );
   }
 
-  Future<void> processCapturedImage(XFile image) async {
-    final Uint8List imageBytes = await image.readAsBytes();
-
-    final ByteData bytes =
-        await rootBundle.load('assets/images/asset_face_image.jpg');
-    final Uint8List assetsImageBytes = bytes.buffer.asUint8List();
+  sendImageToNative(CameraImage image) async {
+    final WriteBuffer allBytes = WriteBuffer();
+    for (Plane plane in image.planes) {
+      allBytes.putUint8List(plane.bytes);
+    }
+    final bytes = allBytes.done().buffer.asUint8List();
 
     await AppValues.instance.methodChannel.invokeMethod<String>(
-      'SendImage',
-      <String, dynamic>{
-        'capturedImage': imageBytes,
-        'assetsImage': assetsImageBytes,
+      "SendImage",
+      {
+        "encodeImage": bytes,
       },
     ).then(
-      (value) {
-        log(value ?? "Cannot get any value from native");
-      },
+      (value) => log(value ?? "Cannot get any value from native"),
     );
   }
 }

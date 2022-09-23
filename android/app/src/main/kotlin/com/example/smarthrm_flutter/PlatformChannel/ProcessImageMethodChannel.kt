@@ -22,27 +22,27 @@ open class ProcessImageMethodChannel {
         ).setMethodCallHandler { call, result ->
             when (call.method) {
                 "SendImage" -> {
-                    val capturedImage: ByteArray? = call.argument("capturedImage")
-                    val assetImage: ByteArray? = call.argument("assetsImage")
+                    val decodedImage: ByteArray = call.argument("encodeImage")
+                        ?: return@setMethodCallHandler result.error(
+                            "Error!",
+                            "Cannot get any image from flutter",
+                            ""
+                        )
 
-                    if (capturedImage != null && assetImage != null) {
-                        if (byteArrayToBitmap(capturedImage) != null && byteArrayToBitmap(assetImage) != null) {
-                            return@setMethodCallHandler result.success("Success decode byte array")
-                        }
+                    val originBitmap: Bitmap? =
+                        BitmapFactory.decodeByteArray(decodedImage, 0, decodedImage.size)
+                    if (originBitmap != null) {
+                        return@setMethodCallHandler result.success("Success decode byte array")
                     }
 
                     return@setMethodCallHandler result.error(
                         "Error!",
-                        "Cannot get any image from flutter",
+                        "Cannot decode byte array",
                         ""
                     )
                 }
                 else -> result.notImplemented()
             }
         }
-    }
-
-    private fun byteArrayToBitmap(bytes: ByteArray): Bitmap? {
-        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
     }
 }

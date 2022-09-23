@@ -52,6 +52,10 @@ class CameraService {
     return await _cameraController?.takePicture();
   }
 
+  startStream(Function(CameraImage) onAvailable) {
+    this._cameraController?.startImageStream(onAvailable);
+  }
+
   dispose() async {
     await this._cameraController?.dispose();
     this._cameraController = null;
