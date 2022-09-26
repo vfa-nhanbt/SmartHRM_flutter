@@ -3,8 +3,8 @@ import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:smarthrm_flutter/screens/home/services/ml_kit_services.dart';
 
 import '../../../config/values.dart';
 import '../services/camera_service.dart';
@@ -19,6 +19,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   CameraService cameraService = GetIt.I<CameraService>();
+  MLKitService mlKitService = GetIt.I<MLKitService>();
 
   bool _initializing = false;
   // bool _canProcess = true;
@@ -78,20 +79,27 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> processCapturedImage(XFile image) async {
     final Uint8List imageBytes = await image.readAsBytes();
 
-    final ByteData bytes =
-        await rootBundle.load('assets/images/asset_face_image.jpg');
-    final Uint8List assetsImageBytes = bytes.buffer.asUint8List();
+    final inputImage = mlKitService.createInputImageFromAssetImage(image.path);
+    final faces = await mlKitService.faceDetector.processImage(inputImage);
+    log(faces.length.toString());
 
-    await AppValues.instance.methodChannel.invokeMethod<String>(
-      'SendImage',
-      <String, dynamic>{
-        'capturedImage': imageBytes,
-        'assetsImage': assetsImageBytes,
-      },
-    ).then(
-      (value) {
-        log(value ?? "Cannot get any value from native");
-      },
-    );
+    if (faces.isNotEmpty) {
+      await AppValues.instance.methodChannel.invokeMethod<String>(
+        'SendImage',
+        <String, dynamic>{
+          'capturedImage': imageBytes,
+          'left': faces.first.boundingBox.left.toInt(),
+          'top': faces.first.boundingBox.top.toInt(),
+          'width': faces.first.boundingBox.width.toInt(),
+          'height': faces.first.boundingBox.height.toInt(),
+          'rotX': faces.first.headEulerAngleX,
+          'rotY': faces.first.headEulerAngleY,
+        },
+      ).then(
+        (value) {
+          log(value ?? "Cannot get any value from native");
+        },
+      );
+    }
   }
 }
