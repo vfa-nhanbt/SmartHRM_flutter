@@ -45,6 +45,7 @@ dependencies:
   google_ml_kit: ^0.12.0
   tflite_flutter: ^0.9.0
   get_it: ^7.2.0
+  pigeon: ^4.2.0
 
 dev_dependencies:
   flutter_test:

@@ -17,7 +17,7 @@ object FaceUtils {
         }
     }
 
-    fun getAspect(rotX: Float, rotY: Float): FaceAspect {
+    fun getAspect(rotX: Double, rotY: Double): FaceAspect {
         return if (abs(rotX) < Configuration.DELTA_NORMAL_ASPECT && abs(rotY) < Configuration.DELTA_NORMAL_ASPECT) {
             FaceAspect.NORMAL
         } else if (abs(rotX) > abs(rotY)) {

@@ -1,10 +1,13 @@
 package com.example.smarthrm_flutter.PlatformChannel
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import android.graphics.Matrix
 import androidx.annotation.NonNull
+import com.example.smarthrm_flutter.Utils.FaceUtils
 import com.example.smarthrm_flutter.Utils.toBitmap
 import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugins.Pigeon
 
 
 open class ProcessImageMethodChannel {
@@ -15,37 +18,59 @@ open class ProcessImageMethodChannel {
     private val methodChannelName = "com.example.smarthrm_flutter/method-channel/"
     private val tag: String = "METHOD_CHANNEL"
 
-    fun callMethodChannel(@NonNull flutterEngine: FlutterEngine) {
-        MethodChannel(
-            flutterEngine.dartExecutor.binaryMessenger,
-            methodChannelName,
-        ).setMethodCallHandler { call, result ->
-            when (call.method) {
-                "SendImage" -> {
-                    val decodedImage: List<ByteArray>? = call.argument("encodeImage")
-                    val width: Int? = call.argument("width")
-                    val height: Int? = call.argument("height")
-                    if (decodedImage == null || width == null || height == null) {
-                        return@setMethodCallHandler result.error(
-                            "Error!",
-                            "Cannot get any image from flutter",
-                            ""
-                        )
-                    }
+    @SuppressLint("KotlinNullnessAnnotation")
+    fun callPigeonMethod(@NonNull flutterEngine: FlutterEngine) {
+        Pigeon.FaceImageApi.setup(flutterEngine.dartExecutor.binaryMessenger, FaceImageApi())
+    }
 
-                    val originBitmap: Bitmap? = decodedImage.toBitmap(width, height)
-                    if (originBitmap != null) {
-                        return@setMethodCallHandler result.success("Success decode byte array")
-                    }
-
-                    return@setMethodCallHandler result.error(
-                        "Error!",
-                        "Cannot decode byte array",
-                        ""
-                    )
-                }
-                else -> result.notImplemented()
+    private class FaceImageApi : Pigeon.FaceImageApi {
+        override fun processImage(faceImage: Pigeon.FaceImage): String {
+            if (faceImage.encodedImage == null || faceImage.imageWidth == null || faceImage.imageHeight == null || faceImage.left == null || faceImage.top == null || faceImage.faceWidth == null || faceImage.faceHeight == null || faceImage.rotX == null || faceImage.rotY == null) {
+                return "Didn't get enough argument from Flutter"
             }
+
+            val originBitmap: Bitmap = faceImage.encodedImage.toBitmap(
+                faceImage.imageWidth!!.toInt(),
+                faceImage.imageHeight!!.toInt()
+            ) ?: return "NullException! - Cannot decode image from Flutter side"
+            // Create new bitmap depend on decoded one
+            val matrix = Matrix()
+            matrix.preScale(-1f, 1f)
+            matrix.postRotate(90f)
+            val bitmap = Bitmap.createBitmap(
+                originBitmap,
+                0,
+                0,
+                originBitmap.width,
+                originBitmap.height,
+                matrix,
+                true
+            )
+
+            // Create face bitmap
+            val faceBitmap: Bitmap? = try {
+                Bitmap.createBitmap(
+                    bitmap,
+                    faceImage.left!!.toInt(),
+                    faceImage.top!!.toInt(),
+                    faceImage.faceWidth!!.toInt(),
+                    faceImage.faceHeight!!.toInt(),
+                )
+            } catch (ex: Exception) {
+                null
+            }
+
+            if (faceBitmap != null) {
+                return "Succeed create face bitmap from Flutter bitmap with Aspect: ${
+                    FaceUtils.getAspect(
+                        faceImage.rotX!!,
+                        faceImage.rotY!!
+                    )
+                }"
+
+            }
+
+            return ""
         }
     }
 }

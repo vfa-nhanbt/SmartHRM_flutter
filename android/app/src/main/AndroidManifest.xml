@@ -3,6 +3,8 @@
    <application
         android:label="smarthrm_flutter"
         android:name="${applicationName}"
+        android:largeHeap="true"
+        android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

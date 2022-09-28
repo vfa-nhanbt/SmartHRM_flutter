@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 
 class CameraService {
@@ -56,8 +59,28 @@ class CameraService {
     this._cameraController?.startImageStream(onAvailable);
   }
 
+  stopStream() async {
+    await this.cameraController?.stopImageStream();
+  }
+
   dispose() async {
     await this._cameraController?.dispose();
     this._cameraController = null;
+  }
+}
+
+extension createEncodeImage on CameraImage {
+  Uint8List _createUint8List(Uint8List bytes) {
+    WriteBuffer allBytes = WriteBuffer();
+    allBytes.putUint8List(bytes);
+    return allBytes.done().buffer.asUint8List();
+  }
+
+  List<Uint8List> toListUint8List() {
+    List<Uint8List> listUint8List = [];
+    listUint8List.add(_createUint8List(this.planes[0].bytes));
+    listUint8List.add(_createUint8List(this.planes[1].bytes));
+    listUint8List.add(_createUint8List(this.planes[2].bytes));
+    return listUint8List;
   }
 }
