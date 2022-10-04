@@ -1,6 +1,7 @@
 package com.example.smarthrm_flutter.Utils
 
 import android.content.Context
+import android.content.res.Resources
 import android.util.Log
 import java.io.BufferedReader
 import java.io.FileInputStream
@@ -11,14 +12,21 @@ import java.nio.channels.FileChannel
 import java.nio.charset.StandardCharsets
 
 object ModelLoader {
+    fun Context.resIdByName(resIdName: String?, resType: String): Int {
+        resIdName?.let {
+            return resources.getIdentifier(it, resType, packageName)
+        }
+        throw Resources.NotFoundException()
+    }
 
     @Throws(IOException::class)
     fun loadMappedFile(context: Context, rawId: Int): MappedByteBuffer {
-        Log.d("loadMappedFile: ", rawId.toString())
+//        Log.d("loadMappedFile: ", rawId.toString())
+//        Log.d("loadMappedFile: ", context.resIdByName("recognition", "tflite").toString())
         val fileDescriptor = context.resources.openRawResourceFd(rawId)
         val mappedByteBuffer: MappedByteBuffer
         try {
-            val inputStream = FileInputStream(fileDescriptor!!.fileDescriptor)
+            val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
             mappedByteBuffer = try {
                 val fileChannel = inputStream.channel
                 val startOffset = fileDescriptor.startOffset

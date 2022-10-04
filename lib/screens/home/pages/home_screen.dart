@@ -96,10 +96,6 @@ class _HomeScreenState extends State<HomeScreen> {
               );
         }
       },
-    ).catchError(
-      (err) {
-        log(err);
-      },
     );
 
     _isBusy = false;

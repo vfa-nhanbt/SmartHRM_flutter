@@ -4,244 +4,341 @@
 package io.flutter.plugins;
 
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import io.flutter.plugin.common.BasicMessageChannel;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MessageCodec;
 import io.flutter.plugin.common.StandardMessageCodec;
-import java.io.ByteArrayOutputStream;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 
-/**Generated class from Pigeon. */
+/**
+ * Generated class from Pigeon.
+ */
 @SuppressWarnings({"unused", "unchecked", "CodeBlock2Expr", "RedundantSuppression"})
 public class Pigeon {
 
-  /** Generated class from Pigeon that represents data sent in messages. */
-  public static class FaceImage {
-    private @Nullable List<byte[]> encodedImage;
-    public @Nullable List<byte[]> getEncodedImage() { return encodedImage; }
-    public void setEncodedImage(@Nullable List<byte[]> setterArg) {
-      this.encodedImage = setterArg;
+    @NonNull
+    private static Map<String, Object> wrapError(@NonNull Throwable exception) {
+        Map<String, Object> errorMap = new HashMap<>();
+        errorMap.put("message", exception.toString());
+        errorMap.put("code", exception.getClass().getSimpleName());
+        errorMap.put("details", "Cause: " + exception.getCause() + ", Stacktrace: " + Log.getStackTraceString(exception));
+        return errorMap;
     }
 
-    private @Nullable Long imageWidth;
-    public @Nullable Long getImageWidth() { return imageWidth; }
-    public void setImageWidth(@Nullable Long setterArg) {
-      this.imageWidth = setterArg;
-    }
-
-    private @Nullable Long imageHeight;
-    public @Nullable Long getImageHeight() { return imageHeight; }
-    public void setImageHeight(@Nullable Long setterArg) {
-      this.imageHeight = setterArg;
-    }
-
-    private @Nullable Long left;
-    public @Nullable Long getLeft() { return left; }
-    public void setLeft(@Nullable Long setterArg) {
-      this.left = setterArg;
-    }
-
-    private @Nullable Long top;
-    public @Nullable Long getTop() { return top; }
-    public void setTop(@Nullable Long setterArg) {
-      this.top = setterArg;
-    }
-
-    private @Nullable Long faceWidth;
-    public @Nullable Long getFaceWidth() { return faceWidth; }
-    public void setFaceWidth(@Nullable Long setterArg) {
-      this.faceWidth = setterArg;
-    }
-
-    private @Nullable Long faceHeight;
-    public @Nullable Long getFaceHeight() { return faceHeight; }
-    public void setFaceHeight(@Nullable Long setterArg) {
-      this.faceHeight = setterArg;
-    }
-
-    private @Nullable Double rotX;
-    public @Nullable Double getRotX() { return rotX; }
-    public void setRotX(@Nullable Double setterArg) {
-      this.rotX = setterArg;
-    }
-
-    private @Nullable Double rotY;
-    public @Nullable Double getRotY() { return rotY; }
-    public void setRotY(@Nullable Double setterArg) {
-      this.rotY = setterArg;
-    }
-
-    public static final class Builder {
-      private @Nullable List<byte[]> encodedImage;
-      public @NonNull Builder setEncodedImage(@Nullable List<byte[]> setterArg) {
-        this.encodedImage = setterArg;
-        return this;
-      }
-      private @Nullable Long imageWidth;
-      public @NonNull Builder setImageWidth(@Nullable Long setterArg) {
-        this.imageWidth = setterArg;
-        return this;
-      }
-      private @Nullable Long imageHeight;
-      public @NonNull Builder setImageHeight(@Nullable Long setterArg) {
-        this.imageHeight = setterArg;
-        return this;
-      }
-      private @Nullable Long left;
-      public @NonNull Builder setLeft(@Nullable Long setterArg) {
-        this.left = setterArg;
-        return this;
-      }
-      private @Nullable Long top;
-      public @NonNull Builder setTop(@Nullable Long setterArg) {
-        this.top = setterArg;
-        return this;
-      }
-      private @Nullable Long faceWidth;
-      public @NonNull Builder setFaceWidth(@Nullable Long setterArg) {
-        this.faceWidth = setterArg;
-        return this;
-      }
-      private @Nullable Long faceHeight;
-      public @NonNull Builder setFaceHeight(@Nullable Long setterArg) {
-        this.faceHeight = setterArg;
-        return this;
-      }
-      private @Nullable Double rotX;
-      public @NonNull Builder setRotX(@Nullable Double setterArg) {
-        this.rotX = setterArg;
-        return this;
-      }
-      private @Nullable Double rotY;
-      public @NonNull Builder setRotY(@Nullable Double setterArg) {
-        this.rotY = setterArg;
-        return this;
-      }
-      public @NonNull FaceImage build() {
-        FaceImage pigeonReturn = new FaceImage();
-        pigeonReturn.setEncodedImage(encodedImage);
-        pigeonReturn.setImageWidth(imageWidth);
-        pigeonReturn.setImageHeight(imageHeight);
-        pigeonReturn.setLeft(left);
-        pigeonReturn.setTop(top);
-        pigeonReturn.setFaceWidth(faceWidth);
-        pigeonReturn.setFaceHeight(faceHeight);
-        pigeonReturn.setRotX(rotX);
-        pigeonReturn.setRotY(rotY);
-        return pigeonReturn;
-      }
-    }
-    @NonNull Map<String, Object> toMap() {
-      Map<String, Object> toMapResult = new HashMap<>();
-      toMapResult.put("encodedImage", encodedImage);
-      toMapResult.put("imageWidth", imageWidth);
-      toMapResult.put("imageHeight", imageHeight);
-      toMapResult.put("left", left);
-      toMapResult.put("top", top);
-      toMapResult.put("faceWidth", faceWidth);
-      toMapResult.put("faceHeight", faceHeight);
-      toMapResult.put("rotX", rotX);
-      toMapResult.put("rotY", rotY);
-      return toMapResult;
-    }
-    static @NonNull FaceImage fromMap(@NonNull Map<String, Object> map) {
-      FaceImage pigeonResult = new FaceImage();
-      Object encodedImage = map.get("encodedImage");
-      pigeonResult.setEncodedImage((List<byte[]>)encodedImage);
-      Object imageWidth = map.get("imageWidth");
-      pigeonResult.setImageWidth((imageWidth == null) ? null : ((imageWidth instanceof Integer) ? (Integer)imageWidth : (Long)imageWidth));
-      Object imageHeight = map.get("imageHeight");
-      pigeonResult.setImageHeight((imageHeight == null) ? null : ((imageHeight instanceof Integer) ? (Integer)imageHeight : (Long)imageHeight));
-      Object left = map.get("left");
-      pigeonResult.setLeft((left == null) ? null : ((left instanceof Integer) ? (Integer)left : (Long)left));
-      Object top = map.get("top");
-      pigeonResult.setTop((top == null) ? null : ((top instanceof Integer) ? (Integer)top : (Long)top));
-      Object faceWidth = map.get("faceWidth");
-      pigeonResult.setFaceWidth((faceWidth == null) ? null : ((faceWidth instanceof Integer) ? (Integer)faceWidth : (Long)faceWidth));
-      Object faceHeight = map.get("faceHeight");
-      pigeonResult.setFaceHeight((faceHeight == null) ? null : ((faceHeight instanceof Integer) ? (Integer)faceHeight : (Long)faceHeight));
-      Object rotX = map.get("rotX");
-      pigeonResult.setRotX((Double)rotX);
-      Object rotY = map.get("rotY");
-      pigeonResult.setRotY((Double)rotY);
-      return pigeonResult;
-    }
-  }
-  private static class FaceImageApiCodec extends StandardMessageCodec {
-    public static final FaceImageApiCodec INSTANCE = new FaceImageApiCodec();
-    private FaceImageApiCodec() {}
-    @Override
-    protected Object readValueOfType(byte type, @NonNull ByteBuffer buffer) {
-      switch (type) {
-        case (byte)128:         
-          return FaceImage.fromMap((Map<String, Object>) readValue(buffer));
-        
-        default:        
-          return super.readValueOfType(type, buffer);
-        
-      }
-    }
-    @Override
-    protected void writeValue(@NonNull ByteArrayOutputStream stream, Object value)     {
-      if (value instanceof FaceImage) {
-        stream.write(128);
-        writeValue(stream, ((FaceImage) value).toMap());
-      } else 
-{
-        super.writeValue(stream, value);
-      }
-    }
-  }
-
-  /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
-  public interface FaceImageApi {
-    @NonNull String processImage(@NonNull FaceImage faceImage);
-
-    /** The codec used by FaceImageApi. */
-    static MessageCodec<Object> getCodec() {
-      return FaceImageApiCodec.INSTANCE;
-    }
-
-    /**Sets up an instance of `FaceImageApi` to handle messages through the `binaryMessenger`. */
-    static void setup(BinaryMessenger binaryMessenger, FaceImageApi api) {
-      {
-        BasicMessageChannel<Object> channel =
-            new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.FaceImageApi.processImage", getCodec());
-        if (api != null) {
-          channel.setMessageHandler((message, reply) -> {
-            Map<String, Object> wrapped = new HashMap<>();
-            try {
-              ArrayList<Object> args = (ArrayList<Object>)message;
-              FaceImage faceImageArg = (FaceImage)args.get(0);
-              if (faceImageArg == null) {
-                throw new NullPointerException("faceImageArg unexpectedly null.");
-              }
-              String output = api.processImage(faceImageArg);
-              wrapped.put("result", output);
-            }
-            catch (Error | RuntimeException exception) {
-              wrapped.put("error", wrapError(exception));
-            }
-            reply.reply(wrapped);
-          });
-        } else {
-          channel.setMessageHandler(null);
+    /**
+     * Generated interface from Pigeon that represents a handler of messages from Flutter.
+     */
+    public interface FaceImageApi {
+        /**
+         * The codec used by FaceImageApi.
+         */
+        static MessageCodec<Object> getCodec() {
+            return FaceImageApiCodec.INSTANCE;
         }
-      }
+
+        /**
+         * Sets up an instance of `FaceImageApi` to handle messages through the `binaryMessenger`.
+         */
+        static void setup(BinaryMessenger binaryMessenger, FaceImageApi api) {
+            {
+                BasicMessageChannel<Object> channel =
+                        new BasicMessageChannel<>(binaryMessenger, "dev.flutter.pigeon.FaceImageApi.processImage", getCodec());
+                if (api != null) {
+                    channel.setMessageHandler((message, reply) -> {
+                        Map<String, Object> wrapped = new HashMap<>();
+                        try {
+                            ArrayList<Object> args = (ArrayList<Object>) message;
+                            FaceImage faceImageArg = (FaceImage) args.get(0);
+                            if (faceImageArg == null) {
+                                throw new NullPointerException("faceImageArg unexpectedly null.");
+                            }
+                            String output = api.processImage(faceImageArg);
+                            wrapped.put("result", output);
+                        } catch (Error | RuntimeException exception) {
+                            wrapped.put("error", wrapError(exception));
+                        }
+                        reply.reply(wrapped);
+                    });
+                } else {
+                    channel.setMessageHandler(null);
+                }
+            }
+        }
+
+        @NonNull
+        String processImage(@NonNull FaceImage faceImage);
     }
-  }
-  @NonNull private static Map<String, Object> wrapError(@NonNull Throwable exception) {
-    Map<String, Object> errorMap = new HashMap<>();
-    errorMap.put("message", exception.toString());
-    errorMap.put("code", exception.getClass().getSimpleName());
-    errorMap.put("details", "Cause: " + exception.getCause() + ", Stacktrace: " + Log.getStackTraceString(exception));
-    return errorMap;
-  }
+
+    /**
+     * Generated class from Pigeon that represents data sent in messages.
+     */
+    public static class FaceImage {
+        private @Nullable
+        List<byte[]> encodedImage;
+        private @Nullable
+        Long imageWidth;
+        private @Nullable
+        Long imageHeight;
+        private @Nullable
+        Long left;
+        private @Nullable
+        Long top;
+        private @Nullable
+        Long faceWidth;
+        private @Nullable
+        Long faceHeight;
+        private @Nullable
+        Double rotX;
+        private @Nullable
+        Double rotY;
+
+        static @NonNull
+        FaceImage fromMap(@NonNull Map<String, Object> map) {
+            FaceImage pigeonResult = new FaceImage();
+            Object encodedImage = map.get("encodedImage");
+            pigeonResult.setEncodedImage((List<byte[]>) encodedImage);
+            Object imageWidth = map.get("imageWidth");
+            pigeonResult.setImageWidth((imageWidth == null) ? null : ((imageWidth instanceof Integer) ? (Integer) imageWidth : (Long) imageWidth));
+            Object imageHeight = map.get("imageHeight");
+            pigeonResult.setImageHeight((imageHeight == null) ? null : ((imageHeight instanceof Integer) ? (Integer) imageHeight : (Long) imageHeight));
+            Object left = map.get("left");
+            pigeonResult.setLeft((left == null) ? null : ((left instanceof Integer) ? (Integer) left : (Long) left));
+            Object top = map.get("top");
+            pigeonResult.setTop((top == null) ? null : ((top instanceof Integer) ? (Integer) top : (Long) top));
+            Object faceWidth = map.get("faceWidth");
+            pigeonResult.setFaceWidth((faceWidth == null) ? null : ((faceWidth instanceof Integer) ? (Integer) faceWidth : (Long) faceWidth));
+            Object faceHeight = map.get("faceHeight");
+            pigeonResult.setFaceHeight((faceHeight == null) ? null : ((faceHeight instanceof Integer) ? (Integer) faceHeight : (Long) faceHeight));
+            Object rotX = map.get("rotX");
+            pigeonResult.setRotX((Double) rotX);
+            Object rotY = map.get("rotY");
+            pigeonResult.setRotY((Double) rotY);
+            return pigeonResult;
+        }
+
+        public @Nullable
+        List<byte[]> getEncodedImage() {
+            return encodedImage;
+        }
+
+        public void setEncodedImage(@Nullable List<byte[]> setterArg) {
+            this.encodedImage = setterArg;
+        }
+
+        public @Nullable
+        Long getImageWidth() {
+            return imageWidth;
+        }
+
+        public void setImageWidth(@Nullable Long setterArg) {
+            this.imageWidth = setterArg;
+        }
+
+        public @Nullable
+        Long getImageHeight() {
+            return imageHeight;
+        }
+
+        public void setImageHeight(@Nullable Long setterArg) {
+            this.imageHeight = setterArg;
+        }
+
+        public @Nullable
+        Long getLeft() {
+            return left;
+        }
+
+        public void setLeft(@Nullable Long setterArg) {
+            this.left = setterArg;
+        }
+
+        public @Nullable
+        Long getTop() {
+            return top;
+        }
+
+        public void setTop(@Nullable Long setterArg) {
+            this.top = setterArg;
+        }
+
+        public @Nullable
+        Long getFaceWidth() {
+            return faceWidth;
+        }
+
+        public void setFaceWidth(@Nullable Long setterArg) {
+            this.faceWidth = setterArg;
+        }
+
+        public @Nullable
+        Long getFaceHeight() {
+            return faceHeight;
+        }
+
+        public void setFaceHeight(@Nullable Long setterArg) {
+            this.faceHeight = setterArg;
+        }
+
+        public @Nullable
+        Double getRotX() {
+            return rotX;
+        }
+
+        public void setRotX(@Nullable Double setterArg) {
+            this.rotX = setterArg;
+        }
+
+        public @Nullable
+        Double getRotY() {
+            return rotY;
+        }
+
+        public void setRotY(@Nullable Double setterArg) {
+            this.rotY = setterArg;
+        }
+
+        @NonNull
+        Map<String, Object> toMap() {
+            Map<String, Object> toMapResult = new HashMap<>();
+            toMapResult.put("encodedImage", encodedImage);
+            toMapResult.put("imageWidth", imageWidth);
+            toMapResult.put("imageHeight", imageHeight);
+            toMapResult.put("left", left);
+            toMapResult.put("top", top);
+            toMapResult.put("faceWidth", faceWidth);
+            toMapResult.put("faceHeight", faceHeight);
+            toMapResult.put("rotX", rotX);
+            toMapResult.put("rotY", rotY);
+            return toMapResult;
+        }
+
+        public static final class Builder {
+            private @Nullable
+            List<byte[]> encodedImage;
+            private @Nullable
+            Long imageWidth;
+            private @Nullable
+            Long imageHeight;
+            private @Nullable
+            Long left;
+            private @Nullable
+            Long top;
+            private @Nullable
+            Long faceWidth;
+            private @Nullable
+            Long faceHeight;
+            private @Nullable
+            Double rotX;
+            private @Nullable
+            Double rotY;
+
+            public @NonNull
+            Builder setEncodedImage(@Nullable List<byte[]> setterArg) {
+                this.encodedImage = setterArg;
+                return this;
+            }
+
+            public @NonNull
+            Builder setImageWidth(@Nullable Long setterArg) {
+                this.imageWidth = setterArg;
+                return this;
+            }
+
+            public @NonNull
+            Builder setImageHeight(@Nullable Long setterArg) {
+                this.imageHeight = setterArg;
+                return this;
+            }
+
+            public @NonNull
+            Builder setLeft(@Nullable Long setterArg) {
+                this.left = setterArg;
+                return this;
+            }
+
+            public @NonNull
+            Builder setTop(@Nullable Long setterArg) {
+                this.top = setterArg;
+                return this;
+            }
+
+            public @NonNull
+            Builder setFaceWidth(@Nullable Long setterArg) {
+                this.faceWidth = setterArg;
+                return this;
+            }
+
+            public @NonNull
+            Builder setFaceHeight(@Nullable Long setterArg) {
+                this.faceHeight = setterArg;
+                return this;
+            }
+
+            public @NonNull
+            Builder setRotX(@Nullable Double setterArg) {
+                this.rotX = setterArg;
+                return this;
+            }
+
+            public @NonNull
+            Builder setRotY(@Nullable Double setterArg) {
+                this.rotY = setterArg;
+                return this;
+            }
+
+            public @NonNull
+            FaceImage build() {
+                FaceImage pigeonReturn = new FaceImage();
+                pigeonReturn.setEncodedImage(encodedImage);
+                pigeonReturn.setImageWidth(imageWidth);
+                pigeonReturn.setImageHeight(imageHeight);
+                pigeonReturn.setLeft(left);
+                pigeonReturn.setTop(top);
+                pigeonReturn.setFaceWidth(faceWidth);
+                pigeonReturn.setFaceHeight(faceHeight);
+                pigeonReturn.setRotX(rotX);
+                pigeonReturn.setRotY(rotY);
+                return pigeonReturn;
+            }
+        }
+    }
+
+    private static class FaceImageApiCodec extends StandardMessageCodec {
+        public static final FaceImageApiCodec INSTANCE = new FaceImageApiCodec();
+
+        private FaceImageApiCodec() {
+        }
+
+        @Override
+        protected Object readValueOfType(byte type, @NonNull ByteBuffer buffer) {
+            switch (type) {
+                case (byte) 128:
+                    return FaceImage.fromMap((Map<String, Object>) readValue(buffer));
+
+                default:
+                    return super.readValueOfType(type, buffer);
+
+            }
+        }
+
+        @Override
+        protected void writeValue(@NonNull ByteArrayOutputStream stream, Object value) {
+            if (value instanceof FaceImage) {
+                stream.write(128);
+                writeValue(stream, ((FaceImage) value).toMap());
+            } else {
+                super.writeValue(stream, value);
+            }
+        }
+    }
 }

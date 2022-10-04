@@ -3,9 +3,11 @@ package com.example.smarthrm_flutter.PlatformChannel
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Matrix
+import android.os.Handler
+import android.os.HandlerThread
 import androidx.annotation.NonNull
-import com.example.smarthrm_flutter.Utils.FaceUtils
-import com.example.smarthrm_flutter.Utils.toBitmap
+import asia.vitalify.hrm.ui.faces.classifier.Classifier
+import com.example.smarthrm_flutter.Utils.*
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugins.Pigeon
 
@@ -15,16 +17,39 @@ open class ProcessImageMethodChannel {
         val instance: ProcessImageMethodChannel by lazy { ProcessImageMethodChannel() }
     }
 
-    private val methodChannelName = "com.example.smarthrm_flutter/method-channel/"
-    private val tag: String = "METHOD_CHANNEL"
+    private var imageRegisters = HashMap<FaceAspect, MutableList<Bitmap>>()
+    private var isFaceDetected = false
+    private lateinit var classifier: Classifier
+    private var handler: Handler
+    private var handlerThread: HandlerThread
+    var embedding: FloatArray = emptyArray<Float>().toFloatArray()
+
+    init {
+        // Initializes imageRegisters
+        imageRegisters[FaceAspect.NORMAL] = mutableListOf()
+        imageRegisters[FaceAspect.LEFT] = mutableListOf()
+        imageRegisters[FaceAspect.RIGHT] = mutableListOf()
+        imageRegisters[FaceAspect.UP] = mutableListOf()
+        imageRegisters[FaceAspect.DOWN] = mutableListOf()
+
+        handlerThread = HandlerThread("inference")
+        handlerThread.start()
+        handler = Handler(handlerThread.looper)
+    }
 
     @SuppressLint("KotlinNullnessAnnotation")
-    fun callPigeonMethod(@NonNull flutterEngine: FlutterEngine) {
+    fun callPigeonMethod(@NonNull flutterEngine: FlutterEngine, classifier: Classifier) {
+        this.classifier = classifier
         Pigeon.FaceImageApi.setup(flutterEngine.dartExecutor.binaryMessenger, FaceImageApi())
     }
 
     private class FaceImageApi : Pigeon.FaceImageApi {
         override fun processImage(faceImage: Pigeon.FaceImage): String {
+            // Return float array if done scan face
+            if (instance.embedding.isNotEmpty()) {
+                return "Succeed create float array from face - Value: ${instance.embedding}"
+            }
+            // else doing creating float array
             if (faceImage.encodedImage == null || faceImage.imageWidth == null || faceImage.imageHeight == null || faceImage.left == null || faceImage.top == null || faceImage.faceWidth == null || faceImage.faceHeight == null || faceImage.rotX == null || faceImage.rotY == null) {
                 return "Didn't get enough argument from Flutter"
             }
@@ -60,17 +85,57 @@ open class ProcessImageMethodChannel {
                 null
             }
 
+            // Check null face bitmap
             if (faceBitmap != null) {
-                return "Succeed create face bitmap from Flutter bitmap with Aspect: ${
-                    FaceUtils.getAspect(
-                        faceImage.rotX!!,
-                        faceImage.rotY!!
-                    )
-                }"
+                val aspect = FaceUtils.getAspect(
+                    faceImage.rotX!!,
+                    faceImage.rotY!!
+                )
 
+                if (instance.imageRegisters[aspect]!!.size < Configuration.NUM_IMAGE_PER_ASPECT) {
+                    instance.imageRegisters[aspect]!!.add(faceBitmap)
+
+                    // Return log aspect remain
+                    return "Succeed get Aspect: ${
+                        FaceUtils.getAspect(
+                            faceImage.rotX!!,
+                            faceImage.rotY!!
+                        )
+                    } - ${Configuration.NUM_IMAGE_PER_ASPECT - instance.imageRegisters[aspect]!!.size}"
+
+                } else if (!instance.isFaceDetected) {
+                    if (FaceUtils.isEnoughFrame(instance.imageRegisters)) {
+                        instance.isFaceDetected = true
+
+                        // Create embedding in background
+                        instance.runInBackground {
+                            instance.embedding =
+                                instance.generateEmbedded(FaceUtils.getAllBitmap(instance.imageRegisters))
+                        }
+                    }
+                }
             }
-
             return ""
         }
+    }
+
+    // Generate embedded from face bitmap
+    private fun generateEmbedded(face: Bitmap): FloatArray {
+        return classifier.run(face)
+    }
+
+    // Generate embedded from list of face bitmaps
+    private fun generateEmbedded(faces: List<Bitmap>): FloatArray {
+        val vectors = mutableListOf<FloatArray>()
+        for (face in faces) {
+            val vector = generateEmbedded(face)
+            vectors.add(vector)
+        }
+        return MatrixTools.sumAndNormalizeVector(vectors)
+    }
+
+    @Synchronized
+    open fun runInBackground(runnable: () -> Unit) {
+        handler.post(runnable)
     }
 }

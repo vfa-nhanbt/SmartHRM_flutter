@@ -2,6 +2,8 @@ package asia.vitalify.hrm.ui.faces.classifier
 
 import android.content.Context
 import android.graphics.Bitmap
+import com.example.smarthrm_flutter.R
+import com.example.smarthrm_flutter.Utils.ModelLoader
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.CompatibilityList
 import org.tensorflow.lite.gpu.GpuDelegate
@@ -72,10 +74,9 @@ class Classifier(context: Context, deviceType: DeviceType, numThreads: Int) {
     }
 
     init {
-//        Log.d("loadMappedFile: ", R.raw.recognition.toString())
-//        recogModel = ModelLoader.loadMappedFile(context, R.raw.recognition)
-//        dModel = ModelLoader.loadMappedFile(context, R.raw.detector)
-//        eModel = ModelLoader.loadMappedFile(context, R.raw.emotion)
+        recogModel = ModelLoader.loadMappedFile(context, R.raw.recognition)
+        dModel = ModelLoader.loadMappedFile(context, R.raw.detector)
+        eModel = ModelLoader.loadMappedFile(context, R.raw.emotion)
 
         val tfliteOptions = Interpreter.Options()
         val dTfliteOptions = Interpreter.Options()
@@ -106,24 +107,24 @@ class Classifier(context: Context, deviceType: DeviceType, numThreads: Int) {
         dTfliteOptions.numThreads = numThreads
         eTfliteOptions.numThreads = numThreads
 
-//        interpreter = Interpreter(recogModel!!, tfliteOptions)
-//        dInterpreter = Interpreter(dModel!!, dTfliteOptions)
-//        eInterpreter = Interpreter(eModel!!, eTfliteOptions)
+        interpreter = Interpreter(recogModel!!, tfliteOptions)
+        dInterpreter = Interpreter(dModel!!, dTfliteOptions)
+        eInterpreter = Interpreter(eModel!!, eTfliteOptions)
 
-//        val shape = interpreter!!.getInputTensor(0).shape() // {1, 640, 640, 3}
-//        sizeY = shape[1]
-//        sizeX = shape[2]
-//        inputImageBuffer = TensorImage(interpreter!!.getInputTensor(0).dataType())
-//
-//        val dShape = dInterpreter!!.getInputTensor(0).shape() // {1, 640, 640, 3}
-//        dSizeY = dShape[1]
-//        dSizeX = dShape[2]
-//        dInputImageBuffer = TensorImage(dInterpreter!!.getInputTensor(0).dataType())
-//
-//        val eShape = eInterpreter!!.getInputTensor(0).shape() // {1, 640, 640, 3}
-//        eSizeY = eShape[1]
-//        eSizeX = eShape[2]
-//        eInputImageBuffer = TensorImage(eInterpreter!!.getInputTensor(0).dataType())
+        val shape = interpreter!!.getInputTensor(0).shape() // {1, 640, 640, 3}
+        sizeY = shape[1]
+        sizeX = shape[2]
+        inputImageBuffer = TensorImage(interpreter!!.getInputTensor(0).dataType())
+
+        val dShape = dInterpreter!!.getInputTensor(0).shape() // {1, 640, 640, 3}
+        dSizeY = dShape[1]
+        dSizeX = dShape[2]
+        dInputImageBuffer = TensorImage(dInterpreter!!.getInputTensor(0).dataType())
+
+        val eShape = eInterpreter!!.getInputTensor(0).shape() // {1, 640, 640, 3}
+        eSizeY = eShape[1]
+        eSizeX = eShape[2]
+        eInputImageBuffer = TensorImage(eInterpreter!!.getInputTensor(0).dataType())
     }
 
     /** Loads input image, and applies preprocessing. */
