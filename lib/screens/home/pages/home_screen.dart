@@ -4,9 +4,9 @@ import 'dart:typed_data';
 
 import 'package:camera/src/camera_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_mlkit_commons/src/input_image.dart';
+import 'package:smarthrm_flutter/screens/home/models/native_response.dart';
 
 import '../../../config/colors.dart';
 import '../models/face_image.dart';
@@ -26,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool _canProcess = true;
   bool _isBusy = false;
+  bool _doneProcess = false;
 
   @override
   void dispose() {
@@ -62,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> processImage(InputImage inputImage, CameraImage cameraImage,
       List<Uint8List> bytes) async {
+    if (_doneProcess) return;
     if (!_canProcess) return;
     if (_isBusy) return;
     _isBusy = true;
@@ -72,28 +74,30 @@ class _HomeScreenState extends State<HomeScreen> {
         if (faces.isNotEmpty) {
           await FaceImageApi()
               .processImage(
-                FaceImage(
-                  encodedImage: bytes,
-                  imageWidth: cameraImage.width,
-                  imageHeight: cameraImage.height,
-                  faceHeight: faces.first.boundingBox.height.toInt(),
-                  faceWidth: faces.first.boundingBox.width.toInt(),
-                  left: faces.first.boundingBox.left.toInt(),
-                  top: faces.first.boundingBox.top.toInt(),
-                  rotX: faces.first.headEulerAngleX,
-                  rotY: faces.first.headEulerAngleY,
-                ),
-              )
+            FaceImage(
+              encodedImage: bytes,
+              imageWidth: cameraImage.width,
+              imageHeight: cameraImage.height,
+              faceHeight: faces.first.boundingBox.height.toInt(),
+              faceWidth: faces.first.boundingBox.width.toInt(),
+              left: faces.first.boundingBox.left.toInt(),
+              top: faces.first.boundingBox.top.toInt(),
+              rotX: faces.first.headEulerAngleX,
+              rotY: faces.first.headEulerAngleY,
+            ),
+          )
               .then(
-                (value) => log(value),
-              )
-              .catchError(
-                (err) => log(
-                  err is PlatformException
-                      ? "${err.code} - ${err.message}"
-                      : "Unexpected Error!",
-                ),
-              );
+            (value) {
+              if (value["isSucceed"] == true) {
+                logResponse(NativeResponse.fromMap(value));
+                _doneProcess = true;
+                setState(() {});
+              } else {
+                log(value["message"].toString());
+              }
+              // logResponse(response!);
+            },
+          );
         }
       },
     );
@@ -102,5 +106,14 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) {
       setState(() {});
     }
+  }
+
+  void logResponse(NativeResponse response) {
+    if (!response.isSucceed) {
+      return log(
+          "${response.message}... ${response.data.faceAspect.toString()}");
+    }
+    return log(
+        "Success call native to create face info, result: ${response.data.faceInfo}");
   }
 }

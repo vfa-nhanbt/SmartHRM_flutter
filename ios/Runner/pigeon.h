@@ -36,7 +36,7 @@ NSObject<FlutterMessageCodec> *FaceImageApiGetCodec(void);
 
 @protocol FaceImageApi
 /// @return `nil` only when `error != nil`.
-- (nullable NSString *)processImageFaceImage:(FaceImage *)faceImage error:(FlutterError *_Nullable *_Nonnull)error;
+- (nullable NSDictionary<NSString *, id> *)processImageFaceImage:(FaceImage *)faceImage error:(FlutterError *_Nullable *_Nonnull)error;
 @end
 
 extern void FaceImageApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<FaceImageApi> *_Nullable api);

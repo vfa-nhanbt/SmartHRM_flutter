@@ -14,5 +14,5 @@ class FaceImage {
 
 @HostApi()
 abstract class FaceImageApi {
-  String processImage(FaceImage faceImage);
+  Map<String, Object?> processImage(FaceImage faceImage);
 }

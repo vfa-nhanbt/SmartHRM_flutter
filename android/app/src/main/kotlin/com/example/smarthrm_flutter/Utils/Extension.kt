@@ -1,6 +1,8 @@
 package com.example.smarthrm_flutter.Utils
 
 import android.graphics.*
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
@@ -25,4 +27,22 @@ fun List<ByteArray>?.toBitmap(width: Int, height: Int): Bitmap? {
     yuvImage.compressToJpeg(Rect(0, 0, yuvImage.width, yuvImage.height), 100, out)
     val imageBytes = out.toByteArray()
     return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+}
+
+val gson = Gson()
+
+//convert a data class to a map
+fun <T> T.toMutableMap(): MutableMap<String, Any> {
+    return convert()
+}
+
+//convert a map to a data class
+inline fun <reified T> MutableMap<String, Any>.toDataClass(): T {
+    return convert()
+}
+
+//convert an object of type I to type O
+inline fun <I, reified O> I.convert(): O {
+    val json = gson.toJson(this)
+    return gson.fromJson(json, object : TypeToken<O>() {}.type)
 }

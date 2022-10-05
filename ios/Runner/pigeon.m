@@ -154,7 +154,7 @@ void FaceImageApiSetup(id<FlutterBinaryMessenger> binaryMessenger, NSObject<Face
         NSArray *args = message;
         FaceImage *arg_faceImage = GetNullableObjectAtIndex(args, 0);
         FlutterError *error;
-        NSString *output = [api processImageFaceImage:arg_faceImage error:&error];
+        NSDictionary<NSString *, id> *output = [api processImageFaceImage:arg_faceImage error:&error];
         callback(wrapResult(output, error));
       }];
     }

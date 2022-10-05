@@ -95,7 +95,7 @@ class FaceImageApi {
 
   static const MessageCodec<Object?> codec = _FaceImageApiCodec();
 
-  Future<String> processImage(FaceImage arg_faceImage) async {
+  Future<Map<String?, Object?>> processImage(FaceImage arg_faceImage) async {
     final BasicMessageChannel<Object?> channel = BasicMessageChannel<Object?>(
         'dev.flutter.pigeon.FaceImageApi.processImage', codec, binaryMessenger: _binaryMessenger);
     final Map<Object?, Object?>? replyMap =
@@ -118,7 +118,7 @@ class FaceImageApi {
         message: 'Host platform returned null value for non-null return value.',
       );
     } else {
-      return (replyMap['result'] as String?)!;
+      return (replyMap['result'] as Map<Object?, Object?>?)!.cast<String?, Object?>();
     }
   }
 }

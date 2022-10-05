@@ -22,7 +22,10 @@ open class ProcessImageMethodChannel {
     private lateinit var classifier: Classifier
     private var handler: Handler
     private var handlerThread: HandlerThread
+
+    //    private var response: MutableMap<String, Any>
     var embedding: FloatArray = emptyArray<Float>().toFloatArray()
+    val response = Response()
 
     init {
         // Initializes imageRegisters
@@ -43,21 +46,31 @@ open class ProcessImageMethodChannel {
         Pigeon.FaceImageApi.setup(flutterEngine.dartExecutor.binaryMessenger, FaceImageApi())
     }
 
+    @Suppress("UNCHECKED_CAST")
     private class FaceImageApi : Pigeon.FaceImageApi {
-        override fun processImage(faceImage: Pigeon.FaceImage): String {
+        override fun processImage(faceImage: Pigeon.FaceImage): MutableMap<String, Any> {
             // Return float array if done scan face
             if (instance.embedding.isNotEmpty()) {
-                return "Succeed create float array from face - Value: ${instance.embedding}"
+                instance.response.isSucceed = true
+                instance.response.data["faceInfo"] = instance.embedding
+                return instance.response.toMutableMap()
             }
             // else doing creating float array
             if (faceImage.encodedImage == null || faceImage.imageWidth == null || faceImage.imageHeight == null || faceImage.left == null || faceImage.top == null || faceImage.faceWidth == null || faceImage.faceHeight == null || faceImage.rotX == null || faceImage.rotY == null) {
-                return "Didn't get enough argument from Flutter"
+                instance.response.errorMessage = "Didn't get enough argument from Flutter"
+                return instance.response.toMutableMap()
             }
 
-            val originBitmap: Bitmap = faceImage.encodedImage.toBitmap(
+            val originBitmap: Bitmap? = faceImage.encodedImage.toBitmap(
                 faceImage.imageWidth!!.toInt(),
                 faceImage.imageHeight!!.toInt()
-            ) ?: return "NullException! - Cannot decode image from Flutter side"
+            )
+
+            if (originBitmap == null) {
+                instance.response.errorMessage = "Didn't get enough argument from Flutter"
+                return instance.response.toMutableMap()
+            }
+
             // Create new bitmap depend on decoded one
             val matrix = Matrix()
             matrix.preScale(-1f, 1f)
@@ -95,13 +108,18 @@ open class ProcessImageMethodChannel {
                 if (instance.imageRegisters[aspect]!!.size < Configuration.NUM_IMAGE_PER_ASPECT) {
                     instance.imageRegisters[aspect]!!.add(faceBitmap)
 
-                    // Return log aspect remain
-                    return "Succeed get Aspect: ${
-                        FaceUtils.getAspect(
-                            faceImage.rotX!!,
-                            faceImage.rotY!!
-                        )
-                    } - ${Configuration.NUM_IMAGE_PER_ASPECT - instance.imageRegisters[aspect]!!.size}"
+//                    // Return log aspect remain
+//                    instance.response.message = "Succeed get Aspect: ${
+//                        FaceUtils.getAspect(
+//                            faceImage.rotX!!,
+//                            faceImage.rotY!!
+//                        )
+//                    } - ${Configuration.NUM_IMAGE_PER_ASPECT - instance.imageRegisters[aspect]!!.size}"
+                    instance.response.message =
+                        "Getting aspect: $aspect... ${instance.imageRegisters[aspect]!!.size}/8"
+                    (instance.response.data["faceAspect"] as MutableMap<String, Int>)["$aspect"] =
+                        instance.imageRegisters[aspect]!!.size
+                    return instance.response.toMutableMap()
 
                 } else if (!instance.isFaceDetected) {
                     if (FaceUtils.isEnoughFrame(instance.imageRegisters)) {
@@ -115,8 +133,9 @@ open class ProcessImageMethodChannel {
                     }
                 }
             }
-            return ""
+            return instance.response.toMutableMap()
         }
+
     }
 
     // Generate embedded from face bitmap
@@ -139,3 +158,4 @@ open class ProcessImageMethodChannel {
         handler.post(runnable)
     }
 }
+

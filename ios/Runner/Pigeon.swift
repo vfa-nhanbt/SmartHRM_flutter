@@ -100,7 +100,7 @@ class FaceImageApiCodec: FlutterStandardMessageCodec {
 
 ///Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol FaceImageApi {
-  func processImage(faceImage: FaceImage) -> String
+  func processImage(faceImage: FaceImage) -> [String: Any?]
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
